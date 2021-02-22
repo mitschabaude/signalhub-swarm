@@ -1,6 +1,6 @@
 # signalhub-swarm
 
-Fullmesh WebRTC connections built on [signalhub](https://github.com/mafintosh/signalhub) and (simple-peer)[https://github.com/feross/simple-peer].
+Fullmesh WebRTC connections built on [signalhub](https://github.com/mafintosh/signalhub) and [simple-peer](https://github.com/feross/simple-peer).
 
 Some important features we add on top of these libraries:
 
