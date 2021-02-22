@@ -4,5 +4,10 @@
   "main": "index.js",
   "repository": "git@github.com:mitschabaude/signalhub-swarm.git",
   "author": "Gregor <gregor.mitscha-baude@gmx.at>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "minimal-state": "^2.1.1",
+    "signalhub-light-client": "^1.0.0",
+    "simple-peer-light": "^1.0.0"
+  }
 }
