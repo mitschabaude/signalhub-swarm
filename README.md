@@ -9,7 +9,7 @@ Some important features we add on top of these libraries:
 - PeerConnection restarts
 - Messaging and shared state between peers over signalhub
 
-This library was built for (Jam)[https://github.com/jam-systems/jam] and is designed for the use case of auto-connecting peers who visit the same URL ("room").
+This library was built for [Jam](https://github.com/jam-systems/jam) and is designed for the use case of auto-connecting peers who visit the same URL ("room").
 
 ## Usage
 
