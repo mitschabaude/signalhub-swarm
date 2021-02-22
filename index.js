@@ -363,7 +363,7 @@ function connect(url, room) {
   let myConnId = randomHex4();
   log('connecting. conn id', myConnId);
   let hub = signalhub(swarm.room, swarm.url);
-  let {myPeerId} = swarm;
+  let myPeerId = getPersistentPeerId();
   hub
     .broadcast('connect-me', {
       peerId: myPeerId,
@@ -503,8 +503,19 @@ function reconnect() {
   connect();
 }
 
+function getPersistentPeerId() {
+  if (swarm.myPeerId) return swarm.myPeerId;
+  let myPeerId = localStorage.getItem('swarm:myPeerId');
+  if (!myPeerId) {
+    myPeerId = randomHex4();
+    localStorage.setItem('swarm:myPeerId', myPeerId);
+  }
+  swarm.set('myPeerId', myPeerId);
+  return myPeerId;
+}
+
 function randomHex4() {
-  return ((Math.random() * 16 ** 4) | 0).toString(16).padStart(4, '0');
+  return ((Math.random() * 65536) | 0).toString(16).padStart(4, '0');
 }
 
 let s = id => id.slice(0, 2);
