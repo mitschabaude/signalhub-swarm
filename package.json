@@ -6,7 +6,7 @@
   "author": "Gregor <gregor.mitscha-baude@gmx.at>",
   "license": "MIT",
   "dependencies": {
-    "minimal-state": "^3.0.0",
+    "minimal-state": "^3.0.1",
     "signalhub-light-client": "^1.0.0",
     "simple-peer-light": "^1.0.0"
   }
