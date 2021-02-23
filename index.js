@@ -505,10 +505,10 @@ function reconnect() {
 
 function getPersistentPeerId() {
   if (swarm.myPeerId) return swarm.myPeerId;
-  let myPeerId = localStorage.getItem('swarm:myPeerId');
+  let myPeerId = sessionStorage.getItem('swarm:myPeerId');
   if (!myPeerId) {
     myPeerId = randomHex4();
-    localStorage.setItem('swarm:myPeerId', myPeerId);
+    sessionStorage.setItem('swarm:myPeerId', myPeerId);
   }
   swarm.set('myPeerId', myPeerId);
   return myPeerId;
