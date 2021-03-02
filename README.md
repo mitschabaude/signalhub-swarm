@@ -6,6 +6,7 @@ Some important features we add on top of these libraries:
 
 - Persistent peer IDs (which can be very useful for an app elsewhere)
 - Fully symmetric API (no deciding which peers are "initiators")
+- Races are resolved automatically
 - PeerConnection restarts
 - Messaging and shared state between peers over signalhub
 

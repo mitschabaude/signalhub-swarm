@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-minimal-state@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/minimal-state/-/minimal-state-3.0.1.tgz#cc4aeb710522ce1fc691d03e9c3cba998665a935"
-  integrity sha512-8tlkVMbrYGPrzndUEr0KLXBmkLWVZ7yfkeSUDxUHsnGQTteEFHhEGSvi2szrkoHrVTOSqwXrtVTTfacdWh+rNA==
+minimal-state@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/minimal-state/-/minimal-state-5.0.0.tgz#a8e4cc81169b1ddccb31cc0465d84727b3eafa29"
+  integrity sha512-qldoMItGYgCMhI3r/JvnSEZ3yYRk2QWEXlx1cmzeAhU7+HPW0F904fV13SXVYf0phLOVbkU0P0VIVJmVE7CKPQ==
 
 signalhub-light-client@^1.0.0:
   version "1.0.0"
