@@ -1,6 +1,6 @@
 import SimplePeer from 'simple-peer-light';
 import State from 'minimal-state';
-import signalhub from 'signalhub-light-client';
+import {authenticatedHub} from './signalhub';
 
 const MAX_CONNECT_TIME = 6000;
 const MAX_CONNECT_TIME_AFTER_ICE_DISCONNECT = 2000;
@@ -31,6 +31,7 @@ const swarm = State({
   newPeer: null,
   sharedEvent: null,
   peerEvent: null,
+  anonymous: null,
 });
 
 export default swarm;
@@ -52,23 +53,23 @@ function addLocalStream(stream, name) {
   addStreamToPeers(stream, name);
 }
 
-swarm.on('sharedState', state => {
-  let {hub, myPeerId, sign} = swarm;
+swarm.on('sharedState', data => {
+  let {hub, myPeerId} = swarm;
   if (!hub || !myPeerId) return;
   hub.broadcast('all', {
     type: 'shared-state',
     peerId: myPeerId,
-    data: sign ? sign(state) : state,
+    data,
   });
 });
 
 swarm.on('sharedEvent', data => {
-  let {hub, myPeerId, sign} = swarm;
+  let {hub, myPeerId} = swarm;
   if (!hub || !myPeerId) return;
   hub.broadcast('all', {
     type: 'shared-event',
     peerId: myPeerId,
-    data: sign ? sign(data) : data,
+    data,
   });
 });
 
@@ -127,7 +128,7 @@ function createPeer(peerId, connId, initiator) {
     if (!peer.didSignal) {
       data.first = true;
       peer.didSignal = true;
-      sharedState = signedState();
+      sharedState = swarm.sharedState;
     }
     hub.broadcast(`signal-${peerId}`, {
       peerId: myPeerId,
@@ -237,8 +238,6 @@ function handlePeerFail(peerId) {
   log('handle peer fail! time failing:', failTime);
 
   if (failTime > MAX_FAIL_TIME) {
-    delete stickyPeers[peerId];
-    swarm.update('stickyPeers');
     removePeer(peerId);
   } else {
     connectPeer(hub, peerId, peer.connId);
@@ -246,8 +245,10 @@ function handlePeerFail(peerId) {
 }
 
 function removePeer(peerId) {
-  let {peers} = swarm;
-  console.log('removing peer', s(peerId));
+  let {peers, stickyPeers} = swarm;
+  log('removing peer', s(peerId));
+  delete stickyPeers[peerId];
+  swarm.update('stickyPeers');
   delete peers[peerId];
   let {remoteStreams} = swarm;
   if (remoteStreams.find(streamObj => streamObj.peerId === peerId)) {
@@ -271,6 +272,7 @@ function addPeerMetaData(peer, data) {
 
 function addStreamToPeers(stream, name) {
   let {peers} = swarm;
+
   for (let peerId in peers) {
     let peer = peers[peerId];
     let oldStream = peer.streams[name];
@@ -300,10 +302,6 @@ function addStreamToPeers(stream, name) {
 }
 
 function updatePeerState(peerId, state) {
-  if (swarm.verify) {
-    state = swarm.verify(state, peerId);
-    if (state === undefined) return;
-  }
   swarm.peerState[peerId] = state;
   swarm.update('peerState');
 }
@@ -330,7 +328,7 @@ function connectPeer(hub, peerId, connId) {
   // -) this has to work in every state of swarm.peers (e.g. with or without existing Peer instance)
   log('connecting peer', s(peerId), connId);
   timeoutPeer(peerId, MAX_CONNECT_TIME);
-  let {myPeerId, peers} = swarm;
+  let {myPeerId, peers, sharedState} = swarm;
   if (myPeerId > peerId) {
     log('i initiate, and override any previous peer!');
     createPeer(peerId, connId, true);
@@ -340,7 +338,7 @@ function connectPeer(hub, peerId, connId) {
       peerId: myPeerId,
       connId: hub.connId,
       yourConnId: connId,
-      sharedState: signedState(),
+      sharedState,
     });
     let peer = peers[peerId];
     if (peer) {
@@ -352,23 +350,30 @@ function connectPeer(hub, peerId, connId) {
   }
 }
 
-function connect(url, room) {
+function connect(room) {
   if (swarm.hub) return;
-  swarm.config({url, room});
+  swarm.config({room});
   if (!swarm.room || !swarm.url) {
     return console.error(
-      'Must call swarm.config(url, room) before connecting!'
+      'Must call swarm.config({url, room}) before connecting!'
     );
   }
   let myConnId = randomHex4();
   log('connecting. conn id', myConnId);
-  let hub = signalhub(swarm.room, swarm.url);
-  let myPeerId = getPersistentPeerId();
+  let {myPeerId, sign, verify, sharedState} = swarm;
+  let hub = authenticatedHub({
+    room: swarm.room,
+    url: swarm.url,
+    myPeerId,
+    sign,
+    verify,
+  });
+
   hub
     .broadcast('connect-me', {
       peerId: myPeerId,
       connId: myConnId,
-      sharedState: signedState(),
+      sharedState,
     })
     .then(() => {
       swarm.set('connected', true);
@@ -471,18 +476,12 @@ function connect(url, room) {
       updatePeerState(peerId, data);
     }
     if (type === 'shared-event') {
-      if (swarm.verify) {
-        data = swarm.verify(data, peerId);
-        if (data === undefined) return;
-      }
       swarm.emit('peerEvent', peerId, data);
     }
   });
-}
-
-function signedState() {
-  let {sign, sharedState} = swarm;
-  return sign ? sign(sharedState) : sharedState;
+  hub.subscribeAnonymous('anonymous', data => {
+    swarm.emit('anonymous', data);
+  });
 }
 
 function disconnect() {
