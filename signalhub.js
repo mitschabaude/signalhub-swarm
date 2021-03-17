@@ -67,10 +67,10 @@ class SignalHub {
   }
 
   broadcastAnonymous(...args) {
-    return hub.broadcast(...args);
+    return this.broadcast(...args);
   }
   subscribeAnonymous(...args) {
-    return hub.subscribe(...args);
+    return this.subscribe(...args);
   }
 
   // TODO: this is untested as we ended up not needing it
