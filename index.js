@@ -360,7 +360,8 @@ function connect(room) {
   }
   let myConnId = randomHex4();
   log('connecting. conn id', myConnId);
-  let {myPeerId, sign, verify, sharedState} = swarm;
+  let {sign, verify, sharedState} = swarm;
+  let myPeerId = getPersistentPeerId();
   let hub = authenticatedHub({
     room: swarm.room,
     url: swarm.url,
