@@ -66,6 +66,13 @@ class SignalHub {
     return subscriber;
   }
 
+  broadcastAnonymous(...args) {
+    return hub.broadcast(...args);
+  }
+  subscribeAnonymous(...args) {
+    return hub.subscribe(...args);
+  }
+
   // TODO: this is untested as we ended up not needing it
   unsubscribe(subscriber) {
     subscriber.close();
