@@ -2,7 +2,7 @@
 // adapted from mafintosh/signalhub/index.js to work standalone in the browser
 // + added support for authenticated messages
 
-export default (...args) => new SignalHub(...args);
+export default (room, url) => new SignalHub(room, url);
 
 // wrapper for signalhub with authentication
 // sign(state): string

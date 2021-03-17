@@ -1,6 +1,6 @@
 import SimplePeer from 'simple-peer-light';
 import State from 'minimal-state';
-import {authenticatedHub} from './signalhub';
+import signalhub, {authenticatedHub} from './signalhub';
 
 const MAX_CONNECT_TIME = 6000;
 const MAX_CONNECT_TIME_AFTER_ICE_DISCONNECT = 2000;
@@ -362,13 +362,16 @@ function connect(room) {
   log('connecting. conn id', myConnId);
   let {sign, verify, sharedState} = swarm;
   let myPeerId = getPersistentPeerId();
-  let hub = authenticatedHub({
-    room: swarm.room,
-    url: swarm.url,
-    myPeerId,
-    sign,
-    verify,
-  });
+  let hub =
+    sign && verify
+      ? authenticatedHub({
+          room: swarm.room,
+          url: swarm.url,
+          myPeerId,
+          sign,
+          verify,
+        })
+      : signalhub(swarm.room, swarm.url);
 
   hub
     .broadcast('connect-me', {
